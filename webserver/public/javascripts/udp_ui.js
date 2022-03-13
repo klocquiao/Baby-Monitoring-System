@@ -5,18 +5,14 @@
 var socket = io.connect();
 $(document).ready(function() {
 
-	$('#btnGetMessage').click(function(){
-		sendPrimeCommand("message");
-	});
+	window.setInterval(function() {sendDrumCommand('stream')}, 1000);
 
-	socket.on('commandReply', function(result) {
-		var newDiv = $('<div></div>').text(result);
-		$('#messages').append(newDiv);
-		$('#messages').scrollTop($('#messages').prop('scrollHeight'));
+	socket.on('commandVideo', function(result) {
+		$('#monitor-stream');
 	});
 	
 });
 
 function sendPrimeCommand(message) {
-	socket.emit('prime', message);
+	socket.emit('video', message);
 };
