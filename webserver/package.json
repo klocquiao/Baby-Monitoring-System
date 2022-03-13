@@ -3,7 +3,15 @@
 	"version": "0.0.0",
 	"description": "Server used to communicate between a baby monitor and parents through a website.",
 	"dependencies": {
-        "mime": "~1.2.7",
+		"express": "^4.16.3",
+		"mime": "~1.2.7",
+		"opencv4nodejs": "^5.6.0",
 		"socket.io": "~0.9.6"
+	},
+	"opencv4nodejs": {
+		"disableAutoBuild": 1,
+		"opencvIncludeDir": "/usr/local/include/opencv4",
+		"opencvLibDir": "/usr/local/lib",
+		"opencvBinDir": "/usr/local/bin"
 	}
 }
