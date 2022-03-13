@@ -1,0 +1,9 @@
+{
+	"name": "baby_monitor_server",
+	"version": "0.0.0",
+	"description": "Server used to communicate between a baby monitor and parents through a website.",
+	"dependencies": {
+        "mime": "~1.2.7",
+		"socket.io": "~0.9.6"
+	}
+}
