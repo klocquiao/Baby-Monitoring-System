@@ -5,14 +5,16 @@
 var socket = io.connect();
 $(document).ready(function() {
 
-	window.setInterval(function() {sendDrumCommand('stream')}, 1000);
+	$('#functionTest').click(function(){
+		sendMonitorCommand("test");
+	});
 
-	socket.on('commandVideo', function(result) {
-		$('#monitor-stream');
+	socket.on('commandTest', function(result) {
+		$('#status-text').text(result);
 	});
 	
 });
 
-function sendPrimeCommand(message) {
-	socket.emit('video', message);
+function sendMonitorCommand(message) {
+	socket.emit('monitor', message);
 };
