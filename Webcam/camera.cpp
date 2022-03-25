@@ -12,9 +12,6 @@ https://github.com/derekmolloy/boneCV
 #include <time.h>
 #include <unistd.h>
 
-#include <opencv2/tracking.hpp>
-#include <opencv2/core/ocl.hpp>
-
 using namespace std;
 using namespace cv;
 
