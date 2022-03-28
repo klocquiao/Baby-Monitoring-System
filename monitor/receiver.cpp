@@ -8,6 +8,7 @@ https://github.com/derekmolloy/boneCV
 #define MAX_LEN 1024
 
 #include "receiver.h"
+#include "recorder.h"
 
 static pthread_t receiverID;
 
@@ -59,6 +60,10 @@ void* receiverRunner(void* arg) {
 static void replyHandler(const char* messageRx) {
     if(strncmp(messageRx, "test", MAX_LEN) == 0) {
         sendPing();
+    }
+    else if(strncmp(messageRx, "record", MAX_LEN) == 0) {
+        startRecorder();
+        sendReply("recording");
     }
 }
     

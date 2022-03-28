@@ -23,8 +23,8 @@ void stopRecorder(void) {
 
 void* recorderRunner(void* arg) {
     VideoCapture capture(0);
-    capture.set(CAP_PROP_FRAME_WIDTH, 640);
-    capture.set(CAP_PROP_FRAME_HEIGHT, 480);
+    capture.set(CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
+    capture.set(CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT);
 
     VideoWriter output("bmRecording.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, Size(FRAME_WIDTH, FRAME_HEIGHT));
 
