@@ -9,14 +9,20 @@ https://github.com/derekmolloy/boneCV
 using namespace std;
 using namespace cv;
 
+#define FRAME_WIDTH 640
+#define FRAME_HEIGHT 480
+
 static pthread_t cameraID;
 static pthread_mutex_t cameraMutex = PTHREAD_MUTEX_INITIALIZER;
-static void* cameraRunner(void* arg);
 static bool isStopping = false;
+
+static void* cameraRunner(void* arg);
+static void* recorderRunner(void* arg);
 
 void startCamera() {
     pthread_create(&cameraID, NULL, cameraRunner, NULL);
-}
+}   
+
 
 void stopCamera(void) {
     isStopping = true;
@@ -24,7 +30,7 @@ void stopCamera(void) {
 }
 
 void* cameraRunner(void* arg) {
-  // setup the camera settings (640x480 image)
+    // setup the camera settings (640x480 image)
     VideoCapture capture(0);
 
     capture.set(CAP_PROP_FRAME_WIDTH, 640);
@@ -37,11 +43,11 @@ void* cameraRunner(void* arg) {
 
     Mat frame;
 
-  while (!isStopping) {
+    while (!isStopping) {
 
-    // capture and process images from the webcam
-    pthread_mutex_lock(&cameraMutex);
-    {
+      // capture and process images from the webcam
+      pthread_mutex_lock(&cameraMutex);
+      {
         capture >> frame;
         
         if (frame.empty()) {
@@ -49,19 +55,20 @@ void* cameraRunner(void* arg) {
             return 0;
         }
 
-    vector<uchar> buff; 
-    cv::imencode(".jpg", frame, buff);
+        vector<uchar> buff; 
+        cv::imencode(".jpg", frame, buff);
 
-    // write jpg to stdout so it can be piped
-    fwrite(buff.data(), buff.size(), 1, stdout);
-    fflush(stdout);
+        // write jpg to stdout so it can be piped
+        fwrite(buff.data(), buff.size(), 1, stdout);
+        fflush(stdout);
+      }
+      
+      pthread_mutex_unlock(&cameraMutex);
     }
-    pthread_mutex_unlock(&cameraMutex);
-
-  }
 
   return NULL;
 }
+
 
 
 
