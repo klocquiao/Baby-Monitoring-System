@@ -12,6 +12,7 @@ https://gist.github.com/six519/6d2beee53038ebe8abd98063abfdad86
 using namespace std;
 using namespace cv;
 
+
 int main() {
 
   Mat frame, gray, frameDelta, thresh, firstFrame;
@@ -30,18 +31,22 @@ int main() {
   GaussianBlur(firstFrame, firstFrame, Size(21, 21), 0);
 
   
-    int k = 0;
+  int k = 0;
   while(camera.read(frame)) {
 
-    if(k == 100) {
 
+    /* Motion detection begin */
+
+    // Updates what the initial frame that the current frame will be compared to
+    if(k == 100) {
         cvtColor(frame, firstFrame, COLOR_BGR2GRAY);
         GaussianBlur(firstFrame, firstFrame, Size(21, 21), 0);
 
         k = 0;
     }
+    k++;
 
-    //convert to grayscale
+    //convert current frame to grayscale
     cvtColor(frame, gray, COLOR_BGR2GRAY);
     GaussianBlur(gray, gray, Size(21, 21), 0);
 
@@ -52,33 +57,33 @@ int main() {
     dilate(thresh, thresh, Mat(), Point(-1,-1), 2);
     findContours(thresh, cnts, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
-      
-
-      for(int i = 0; i< cnts.size(); i++) {
-          if(contourArea(cnts[i]) < 1500) {
-              continue;
-          }
-
-          putText(frame, "Motion Detected", Point(10, 20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,255),2);
+    for(int i = 0; i< cnts.size(); i++) {
+      if(contourArea(cnts[i]) < 1500) {
+          continue;
       }
-  
-    //   imshow("Camera", frame);
       
-      if(waitKey(1) == 27){
-          //exit if ESC is pressed
-          break;
-      }
+      // Motion has been detected
+      putText(frame, "Motion Detected", Point(10, 20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,255),2);
+    }
 
-      std::vector<uchar> buff;
+    /* Motion detection end */
+      
+    if(waitKey(1) == 27){
+      //exit if ESC is pressed
+      break;
+    }
 
+    /* Stream camera to stdout begin */
+
+    std::vector<uchar> buff;
     // encode to jpg
     cv::imencode(".jpg", frame, buff);
 
     // write jpg to stdout so it can be piped
     fwrite(buff.data(), buff.size(), 1, stdout);
     fflush(stdout);
-    k++;
-  
+    
+    /* Stream camera to stdout end */  
   }
 
   return 0;
