@@ -1,9 +1,8 @@
 /***********************************************
 Sources:
-https://opencoursehub.cs.sfu.ca/bfraser/grav-cms/cmpt433/links/files/2019-student-howtos/StreamOpenCVImages.pdf
-https://github.com/derekmolloy/boneCV
 https://gist.github.com/six519/6d2beee53038ebe8abd98063abfdad86 
 ***********************************************/
+
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/tracking.hpp>
@@ -12,6 +11,7 @@ https://gist.github.com/six519/6d2beee53038ebe8abd98063abfdad86
 
 using namespace std;
 using namespace cv;
+
 
 int main() {
 
@@ -58,12 +58,11 @@ int main() {
     findContours(thresh, cnts, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
     for(int i = 0; i< cnts.size(); i++) {
-      // threshold checker, I believe higher number means less sensitive to movement
       if(contourArea(cnts[i]) < 1500) {
           continue;
       }
       
-      // Motion has been detected - can call node server functions to alert parent
+      // Motion has been detected
       putText(frame, "Motion Detected", Point(10, 20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,255),2);
     }
 
