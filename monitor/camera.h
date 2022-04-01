@@ -4,6 +4,7 @@
 #include <iostream>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
+#include <nadjieb/mjpeg_streamer.hpp>
 #include <unistd.h>
 #include <pthread.h>
 #include <vector>
