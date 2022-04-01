@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "receiver.h"
 #include "camera.h"
 
@@ -11,8 +9,6 @@ int main(int argc, const char *argv[]) {
     
     stopReceiver();
     stopCamera();
-    
-    std::cout << "Our baby monitor is awesome\n";
-    
+        
     return 0;
 }
