@@ -1,18 +1,19 @@
+<<<<<<< HEAD
 CPP := g++
-CXXFLAGS := -O2 -g -std=c++14 -Wall -Werror -pthread
+CXXFLAGS := -O2 -g -std=c++14 -Wall -Werror -pthread -D__LINUX_ALSA__
 
 PUB_DIR := $(HOME)
 PROJ_NAME := baby_monitor
 SRC_FILES := $(wildcard monitor/*.cpp)
 OPENCV := `pkg-config --cflags --libs opencv`
 
-LFLAGS := -lrt -lpthread 
+LFLAGS := -L$(HOME)/cmpt433/public/asound_lib_BBB -lpthread -lasound -lrt
 
 app:
 	$(CPP) $(CXXFLAGS) $(OPENCV) $(SRC_FILES) -o $(PROJ_NAME) $(LFLAGS)
 
-host:
-	g++-6 $(CXXFLAGS) $(SRC_FILES) -o $(PROJ_NAME)
-
 clean:
-	rm -f *.o $(PROJ_NAME)
+	rm -f *.o $(TARGET) $(OUTDIR)/$(TARGET)
+
+node:
+	cd webserver && ${MAKE}
