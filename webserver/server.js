@@ -1,9 +1,10 @@
-var PORT_NUMBER = 3000;
+var PORT_NUMBER = 8088;
 
 var http = require('http');
 var fs   = require('fs');
 var path = require('path');
 var mime = require('mime');
+
 var server = http.createServer(function(request, response) {
 	var filePath = false;
 	

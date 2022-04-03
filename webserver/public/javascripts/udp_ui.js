@@ -5,18 +5,16 @@
 var socket = io.connect();
 $(document).ready(function() {
 
-	$('#btnGetMessage').click(function(){
-		sendPrimeCommand("message");
+	$('#functionTest').click(function(){
+		sendMonitorCommand("test");
 	});
 
-	socket.on('commandReply', function(result) {
-		var newDiv = $('<div></div>').text(result);
-		$('#messages').append(newDiv);
-		$('#messages').scrollTop($('#messages').prop('scrollHeight'));
+	socket.on('commandTest', function(result) {
+		$('#status-text').text(result);
 	});
 	
 });
 
-function sendPrimeCommand(message) {
-	socket.emit('prime', message);
+function sendMonitorCommand(message) {
+	socket.emit('monitor', message);
 };

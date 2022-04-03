@@ -8,11 +8,17 @@
 <body>
 	<div id='content'>
 		<h1>Hello Baby Monitor</h1>
-		<div id='messages'></div>
-		
-		<form id='send-form' >
-			<input type="button" id="btnGetMessage" value="Get Message"/>
-		</form>
+		<div id='monitor'>
+			<img src="http://192.168.7.2:8084/stream">
+		</div>
+
+		<div id="functions">
+			<input type="button" id="functionTest" value="Test">
+		</div>
+
+		<div id="status-box">
+			<div><code id="status-text">Nothing happened yet...</code></div>
+		</div>
 	</div>
 	
 	<script src='/socket.io/socket.io.js' type='text/javascript'></script>

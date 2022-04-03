@@ -1,7 +1,7 @@
 # Adapted from Brian Fraser
 
 # Deploy this Node.js project to the public folder
-PROJECT_NAME=10-UdpRelay
+PROJECT_NAME=UdpBabyMonitor
 DEPLOY_PATH= $(HOME)/cmpt433/public/node/$(PROJECT_NAME)-copy
 
 all: deploy node_install
