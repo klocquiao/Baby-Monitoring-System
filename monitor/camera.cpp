@@ -9,16 +9,31 @@ using namespace std;
 using namespace cv;
 using MJPEGStreamer = nadjieb::MJPEGStreamer;
 
-static pthread_t cameraID;
-static void* cameraRunner(void* arg);
-static bool isStopping = false;
+#define RECORDING_LENGTH_SEC 15
+#define FRAME_WIDTH 544
+#define FRAME_HEIGHT 288
 
-void startCamera() {
+static pthread_t cameraID;
+static pthread_t recorderID;
+static pthread_t timerID;
+static pthread_mutex_t camMutex = PTHREAD_MUTEX_INITIALIZER;
+
+static void* cameraRunner(void* arg);
+static void* recorderRunner(void* arg);
+static void* timerRunner(void* arg);
+
+static bool isCamStopping = false;
+static bool isRecStopping = false;
+
+static VideoCapture camera(0);
+
+
+void startCamera(void) {
     pthread_create(&cameraID, NULL, cameraRunner, NULL);
 }
 
 void stopCamera(void) {
-    isStopping = true;
+    isCamStopping = true;
     pthread_join(cameraID, NULL);
 }
 
@@ -29,10 +44,9 @@ void* cameraRunner(void* arg) {
   vector<vector<Point>> cnts;
 
   streamer.start(8084);
-  VideoCapture camera(0);
 
-  camera.set(3, 512);
-  camera.set(4, 288);
+  camera.set(3, FRAME_WIDTH);
+  camera.set(4, FRAME_HEIGHT);
 
   sleep(3);
   camera.read(frame);
@@ -41,8 +55,13 @@ void* cameraRunner(void* arg) {
   GaussianBlur(firstFrame, firstFrame, Size(21, 21), 0);
 
   int k = 0;
-  while (!isStopping) {
-    camera.read(frame);
+  while (!isCamStopping) {
+    pthread_mutex_lock(&camMutex);
+    {
+      camera.read(frame);
+    }
+    pthread_mutex_unlock(&camMutex);
+
     /* Motion detection begin */
 
     // Updates what the initial frame that the current frame will be compared to
@@ -76,6 +95,11 @@ void* cameraRunner(void* arg) {
       putText(frame, "Motion Detected", Point(10, 20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,255),2);
     }
 
+    if(waitKey(1) == 27){
+      //exit if ESC is pressed
+      break;
+    }
+
     // capture and process images from the webcam
     vector<uchar> buff; 
     cv::imencode(".jpg", frame, buff);
@@ -88,6 +112,51 @@ void* cameraRunner(void* arg) {
   return NULL;
 }
 
+// RECORDER
+
+void startRecorder(void) {
+    pthread_create(&recorderID, NULL, recorderRunner, NULL);
+    pthread_create(&timerID, NULL, timerRunner, NULL);
+
+}
+
+void stopRecorder(void) {
+    isRecStopping = true;
+    pthread_join(recorderID, NULL);
+}
+
+void* timerRunner(void* arg) {
+  struct timespec reqDelay = {RECORDING_LENGTH_SEC, 0};
+  nanosleep(&reqDelay, (struct timespec *) NULL);
+
+  stopRecorder();
+  return NULL;
+}
+
+void* recorderRunner(void* arg) {
+    VideoWriter output("output.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'), 15, Size(FRAME_WIDTH, FRAME_HEIGHT));
+
+    while(!isRecStopping) {
+        Mat frame;
+
+        pthread_mutex_lock(&camMutex);
+        {
+          camera.read(frame);
+        }
+        pthread_mutex_unlock(&camMutex);
+
+        if (!camera.isOpened()) {
+            cout << "Failed to connect to the camera." << endl;
+            exit(0);
+        }
+
+        output.write(frame);
+    }
+
+  output.release();
+
+  return NULL;
+}         
 
 
 

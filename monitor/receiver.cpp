@@ -8,8 +8,7 @@ https://github.com/derekmolloy/boneCV
 #define MAX_LEN 1024
 
 #include "receiver.h"
-#include "recorder.h"
-
+#include "camera.h"
 static pthread_t receiverID;
 
 static bool isShuttingDown = false;

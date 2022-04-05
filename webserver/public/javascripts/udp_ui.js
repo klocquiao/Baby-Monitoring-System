@@ -19,11 +19,11 @@ $(document).ready(function() {
 
 	socket.on('commandRecord', function(result) {
 		$("#functionRecord").prop("value", "Recording...");
-		$("#functionRecord").attr('disabled','disabled');
+		$("#functionRecord").prop('disabled', true);
 
 		setTimeout(function() {
-		$("#functionRecord").removeAttr('disabled');
-        }, 45000);
+            $("#functionRecord").prop('disabled', false);
+		}, 20000);
 	});
 });
 
