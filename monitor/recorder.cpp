@@ -6,7 +6,6 @@ using namespace cv;
 static bool isStopping = false;
 
 static pthread_t recorderID;
-static pthread_mutex_t recorderMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void* recorderRunner(void* arg);
 
