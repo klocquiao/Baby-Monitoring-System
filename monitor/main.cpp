@@ -1,11 +1,16 @@
-#include <iostream>
+#include "camera.h"
 #include "receiver.h"
+
+// Test program to convert a2d to wave.
 int main(int argc, const char *argv[]) {
     startReceiver();
-    while(1) {};
+    startCamera();
+
+    while (1) {
+    };
+
     stopReceiver();
-    
-    std::cout << "Our baby monitor is awesome\n";
-    
+    stopCamera();
+
     return 0;
 }

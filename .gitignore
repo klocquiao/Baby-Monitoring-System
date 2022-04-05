@@ -35,3 +35,8 @@
 *.exe
 *.out
 *.app
+baby_monitor
+
+# Webserver
+webserver/node_modules/
+webserver/build/
