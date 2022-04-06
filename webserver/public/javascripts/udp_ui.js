@@ -11,6 +11,10 @@ $(document).ready(function() {
 
 	$('#functionRecord').click(function(){
 		sendMonitorCommand("record");
+	});	
+	
+	$('#functionUpdateFrame').click(function(){
+		sendMonitorCommand("updateFrame");
 	});
 
 	socket.on('commandTest', function(result) {
@@ -24,6 +28,11 @@ $(document).ready(function() {
 		setTimeout(function() {
             $("#functionRecord").prop('disabled', false);
 		}, 20000);
+	});
+
+
+	socket.on('commandUpdateFrame', function(result) {
+		// Reset the initial frame;
 	});
 });
 

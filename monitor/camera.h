@@ -13,6 +13,7 @@
 
 void startCamera(void);
 void stopCamera(void);
+void updateFirstInitialFrame(void);
 
 void startRecorder(void);
 void stopRecorder(void);

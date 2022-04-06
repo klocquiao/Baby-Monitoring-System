@@ -64,6 +64,10 @@ static void replyHandler(const char* messageRx) {
         startRecorder();
         sendReply("recording");
     }
+        else if(strncmp(messageRx, "updateFrame", MAX_LEN) == 0) {
+        updateFirstInitialFrame();
+        sendReply("updating");
+    }
 }
     
 static void sendReply(const char* reply) {
