@@ -33,6 +33,8 @@ static Mat frameDelta;
 static Mat thresh;
 static Mat firstFrame;
 
+static bool isMotionDetected = false;
+
 void startCamera(void) {
     pthread_create(&cameraID, NULL, cameraRunner, NULL);
 }
@@ -45,6 +47,15 @@ void stopCamera(void) {
 void updateFirstInitialFrame() {
   cvtColor(frame, firstFrame, COLOR_BGR2GRAY);
   GaussianBlur(firstFrame, firstFrame, Size(21, 21), 0);
+  isMotionDetected = false;
+}
+
+bool checkForMotion() {
+  if (isMotionDetected) {
+    return true;
+  }
+
+  return false;
 }
 
 void* cameraRunner(void* arg) {
@@ -81,15 +92,21 @@ void* cameraRunner(void* arg) {
     dilate(thresh, thresh, Mat(), Point(-1,-1), 2);
     findContours(thresh, cnts, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
-    for (unsigned int i = 0; i < cnts.size(); i++) {
-      // threshold checker, I believe higher number means less sensitive to movement
-      if(contourArea(cnts[i]) < 3500) {
-          continue;
+    if (isMotionDetected == false) {
+      for (unsigned int i = 0; i < cnts.size(); i++) {
+        // threshold checker, I believe higher number means less sensitive to movement
+        if (contourArea(cnts[i]) >= 3500) {
+          putText(frame, "Motion Detected", Point(10, 20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,255),2);
+          isMotionDetected = true;     
+          break;
+        }
       }
-      
-      // Motion has been detected - can call node server functions to alert parent
+    }
+    else {
+      // Leave for now; will replace with notif on front end
       putText(frame, "Motion Detected", Point(10, 20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,255),2);
     }
+
 
     if(waitKey(1) == 27){
       //exit if ESC is pressed
@@ -100,7 +117,6 @@ void* cameraRunner(void* arg) {
     vector<uchar> buff; 
     cv::imencode(".jpg", frame, buff);
     streamer.publish("/stream", std::string(buff.begin(), buff.end()));
-    
   }
 
   streamer.stop();
@@ -109,7 +125,6 @@ void* cameraRunner(void* arg) {
 }
 
 // RECORDER
-
 void startRecorder(void) {
     pthread_create(&recorderID, NULL, recorderRunner, NULL);
     pthread_create(&timerID, NULL, timerRunner, NULL);

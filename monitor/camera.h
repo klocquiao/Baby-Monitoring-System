@@ -11,12 +11,15 @@
 #include <pthread.h>
 #include <vector>
 
+#define FRAME_WIDTH 544
+#define FRAME_HEIGHT 288
+
 void startCamera(void);
 void stopCamera(void);
 void updateFirstInitialFrame(void);
+bool checkForMotion(void);
 
 void startRecorder(void);
 void stopRecorder(void);
-
 
 #endif
