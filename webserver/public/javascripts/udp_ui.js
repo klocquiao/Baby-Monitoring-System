@@ -9,10 +9,22 @@ $(document).ready(function() {
 		sendMonitorCommand("test");
 	});
 
+	$('#functionRecord').click(function(){
+		sendMonitorCommand("record");
+	});
+
 	socket.on('commandTest', function(result) {
 		$('#status-text').text(result);
 	});
-	
+
+	socket.on('commandRecord', function(result) {
+		$("#functionRecord").prop("value", "Recording...");
+		$("#functionRecord").prop('disabled', true);
+
+		setTimeout(function() {
+            $("#functionRecord").prop('disabled', false);
+		}, 20000);
+	});
 });
 
 function sendMonitorCommand(message) {

@@ -42,7 +42,12 @@ function handleCommand(socket) {
 		client.on('message', function (message, remote) {
 			console.log("UDP Client: message Rx" + remote.address + ':' + remote.port +' - ' + message);
 			var reply = message.toString('utf8');
-			socket.emit('commandTest', reply);
+			if (reply == "recording") {
+				socket.emit('commandRecord', reply);
+			}
+			else {
+				socket.emit('commandTest', reply);
+			}
 
 			client.close();
 

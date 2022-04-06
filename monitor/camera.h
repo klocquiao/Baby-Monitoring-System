@@ -14,4 +14,8 @@
 void startCamera(void);
 void stopCamera(void);
 
+void startRecorder(void);
+void stopRecorder(void);
+
+
 #endif
