@@ -1,7 +1,6 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
-//#include "camera.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
