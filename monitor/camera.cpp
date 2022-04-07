@@ -12,6 +12,7 @@ using MJPEGStreamer = nadjieb::MJPEGStreamer;
 #define RECORDING_LENGTH_SEC 15
 #define FRAME_WIDTH 544
 #define FRAME_HEIGHT 288
+#define SHARED_FOLDER_PATH "/mnt/remote/saved/"
 
 static pthread_t cameraID;
 static pthread_t recorderID;
@@ -140,7 +141,11 @@ void* timerRunner(void* arg) {
 }
 
 void* recorderRunner(void* arg) {
-    VideoWriter output("output.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'), 15, Size(FRAME_WIDTH, FRAME_HEIGHT));
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+    String filename = "monitor" + "_" + put_time(&tm, "%d-%m-%Y_%H-%M-%S") + ".avi";
+    VideoWriter output("/mnt/remote/saved" + filename, 
+        VideoWriter::fourcc('M', 'J', 'P', 'G'), 15, Size(FRAME_WIDTH, FRAME_HEIGHT));
 
     while(!isRecStopping) {
         Mat recFrame;
