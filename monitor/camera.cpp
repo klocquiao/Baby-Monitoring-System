@@ -27,6 +27,13 @@ static bool isRecStopping = false;
 
 static VideoCapture camera(0);
 
+static Mat frame;
+static Mat gray; 
+static Mat frameDelta;
+static Mat thresh;
+static Mat firstFrame;
+
+static bool isMotionDetected = false;
 
 void startCamera(void) {
     pthread_create(&cameraID, NULL, cameraRunner, NULL);
@@ -37,10 +44,23 @@ void stopCamera(void) {
     pthread_join(cameraID, NULL);
 }
 
+void updateFirstInitialFrame() {
+  cvtColor(frame, firstFrame, COLOR_BGR2GRAY);
+  GaussianBlur(firstFrame, firstFrame, Size(21, 21), 0);
+  isMotionDetected = false;
+}
+
+bool checkForMotion() {
+  if (isMotionDetected) {
+    return true;
+  }
+
+  return false;
+}
+
 void* cameraRunner(void* arg) {
   // setup the camera settings (640x480 image)
   MJPEGStreamer streamer;
-  Mat frame, gray, frameDelta, thresh, firstFrame;
   vector<vector<Point>> cnts;
 
   streamer.start(8084);
@@ -51,10 +71,8 @@ void* cameraRunner(void* arg) {
   sleep(3);
   camera.read(frame);
 
-  cvtColor(frame, firstFrame, COLOR_BGR2GRAY);
-  GaussianBlur(firstFrame, firstFrame, Size(21, 21), 0);
+  updateFirstInitialFrame();
 
-  int k = 0;
   while (!isCamStopping) {
     pthread_mutex_lock(&camMutex);
     {
@@ -63,17 +81,6 @@ void* cameraRunner(void* arg) {
     pthread_mutex_unlock(&camMutex);
 
     /* Motion detection begin */
-
-    // Updates what the initial frame that the current frame will be compared to
-    if(k == 100) {
-        cvtColor(frame, firstFrame, COLOR_BGR2GRAY);
-        GaussianBlur(firstFrame, firstFrame, Size(21, 21), 0);
-
-        k = 0;
-    }
-
-    k++;
-
     //convert current frame to grayscale
     cvtColor(frame, gray, COLOR_BGR2GRAY);
     GaussianBlur(gray, gray, Size(21, 21), 0);
@@ -85,15 +92,21 @@ void* cameraRunner(void* arg) {
     dilate(thresh, thresh, Mat(), Point(-1,-1), 2);
     findContours(thresh, cnts, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
-    for (unsigned int i = 0; i < cnts.size(); i++) {
-      // threshold checker, I believe higher number means less sensitive to movement
-      if(contourArea(cnts[i]) < 1500) {
-          continue;
+    if (isMotionDetected == false) {
+      for (unsigned int i = 0; i < cnts.size(); i++) {
+        // threshold checker, I believe higher number means less sensitive to movement
+        if (contourArea(cnts[i]) >= 3500) {
+          putText(frame, "Motion Detected", Point(10, 20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,255),2);
+          isMotionDetected = true;     
+          break;
+        }
       }
-      
-      // Motion has been detected - can call node server functions to alert parent
+    }
+    else {
+      // Leave for now; will replace with notif on front end
       putText(frame, "Motion Detected", Point(10, 20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,255),2);
     }
+
 
     if(waitKey(1) == 27){
       //exit if ESC is pressed
@@ -104,7 +117,6 @@ void* cameraRunner(void* arg) {
     vector<uchar> buff; 
     cv::imencode(".jpg", frame, buff);
     streamer.publish("/stream", std::string(buff.begin(), buff.end()));
-    
   }
 
   streamer.stop();
@@ -113,11 +125,9 @@ void* cameraRunner(void* arg) {
 }
 
 // RECORDER
-
 void startRecorder(void) {
     pthread_create(&recorderID, NULL, recorderRunner, NULL);
     pthread_create(&timerID, NULL, timerRunner, NULL);
-
 }
 
 void stopRecorder(void) {
@@ -137,11 +147,11 @@ void* recorderRunner(void* arg) {
     VideoWriter output("output.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'), 15, Size(FRAME_WIDTH, FRAME_HEIGHT));
 
     while(!isRecStopping) {
-        Mat frame;
+        Mat recFrame;
 
         pthread_mutex_lock(&camMutex);
         {
-          camera.read(frame);
+          camera.read(recFrame);
         }
         pthread_mutex_unlock(&camMutex);
 
@@ -150,7 +160,7 @@ void* recorderRunner(void* arg) {
             exit(0);
         }
 
-        output.write(frame);
+        output.write(recFrame);
     }
 
   output.release();

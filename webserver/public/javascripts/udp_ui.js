@@ -4,6 +4,7 @@
 // Make connection to server when web page is fully loaded.
 var socket = io.connect();
 $(document).ready(function() {
+	window.setInterval(function() {sendMonitorCommand('checkForMotion')}, 1000);
 
 	$('#functionTest').click(function(){
 		sendMonitorCommand("test");
@@ -11,6 +12,10 @@ $(document).ready(function() {
 
 	$('#functionRecord').click(function(){
 		sendMonitorCommand("record");
+	});	
+	
+	$('#functionUpdateFrame').click(function(){
+		sendMonitorCommand("updateFrame");
 	});
 
 	socket.on('commandTest', function(result) {
@@ -24,6 +29,14 @@ $(document).ready(function() {
 		setTimeout(function() {
             $("#functionRecord").prop('disabled', false);
 		}, 20000);
+	});
+
+
+	socket.on('commandUpdateFrame', function(result) {
+		// Reset the initial frame;
+	});	
+	socket.on('commandUpdateMotion', function(result) {
+		$('#status-text').text(result);
 	});
 });
 
