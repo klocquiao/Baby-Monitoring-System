@@ -9,6 +9,8 @@ OPENCV := `pkg-config --cflags --libs opencv`
 
 LFLAGS := -L$(HOME)/cmpt433/public/asound_lib_BBB -lpthread -lasound -lrt
 
+all: app
+
 app:
 	$(CPP) $(CXXFLAGS) $(OPENCV) $(SRC_FILES) -o $(PROJ_NAME) $(LFLAGS)
 
