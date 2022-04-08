@@ -9,15 +9,17 @@ using namespace std;
 using namespace cv;
 using MJPEGStreamer = nadjieb::MJPEGStreamer;
 
-#define RECORDING_LENGTH_SEC 15
+#define RECORDING_LENGTH_SEC 30
+
 #define FRAME_WIDTH 544
 #define FRAME_HEIGHT 288
-#define SHARED_FOLDER_PATH "/mnt/remote/saved/"
+#define FILE_PATH "/mnt/remote/saved/monitor_"
+#define FILE_TYPE ".avi"
 
 static pthread_t cameraID;
 static pthread_t recorderID;
 static pthread_t timerID;
-static pthread_mutex_t camMutex = PTHREAD_MUTEX_INITIALIZER;
+//static pthread_mutex_t camMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void* cameraRunner(void* arg);
 static void* recorderRunner(void* arg);
@@ -34,7 +36,7 @@ static Mat frameDelta;
 static Mat thresh;
 static Mat firstFrame;
 
-static bool isMotionDetected = false;
+static bool isMotionDetected = true;
 
 void startCamera(void) {
     pthread_create(&cameraID, NULL, cameraRunner, NULL);
@@ -74,11 +76,11 @@ void* cameraRunner(void* arg) {
     updateFirstInitialFrame();
 
     while (!isCamStopping) {
-        pthread_mutex_lock(&camMutex);
-        {
+        //pthread_mutex_lock(&camMutex);
+        //{
             camera.read(frame);
-        }
-        pthread_mutex_unlock(&camMutex);
+        //}
+        //pthread_mutex_unlock(&camMutex);
 
         // Convert current frame to grayscale
         cvtColor(frame, gray, COLOR_BGR2GRAY);
@@ -95,7 +97,7 @@ void* cameraRunner(void* arg) {
             for (unsigned int i = 0; i < cnts.size(); i++) {
                 if (contourArea(cnts[i]) >= 3500) {
                     putText(frame, "Motion Detected", Point(10, 20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,255),2);
-                    isMotionDetected = true;     
+                    isMotionDetected = true; 
                     break;
                 }
             }
@@ -129,6 +131,7 @@ void startRecorder(void) {
 
 void stopRecorder(void) {
     isRecStopping = true;
+    pthread_cancel(timerID);
     pthread_join(recorderID, NULL);
 }
 
@@ -143,25 +146,30 @@ void* timerRunner(void* arg) {
 void* recorderRunner(void* arg) {
     auto t = std::time(nullptr);
     auto tm = *std::localtime(&t);
-    String filename = "monitor" + "_" + put_time(&tm, "%d-%m-%Y_%H-%M-%S") + ".avi";
-    VideoWriter output("/mnt/remote/saved" + filename, 
+
+    ostringstream stringStreamForTime;
+    stringStreamForTime << std::put_time(&tm, "%d-%m-%Y_%H-%M-%S");
+    string timeStr = stringStreamForTime.str();
+
+    VideoWriter output("/mnt/remote/saved/output_" + timeStr + ".avi", 
         VideoWriter::fourcc('M', 'J', 'P', 'G'), 15, Size(FRAME_WIDTH, FRAME_HEIGHT));
 
     while(!isRecStopping) {
-        Mat recFrame;
+        /*Mat recFrame;
 
         pthread_mutex_lock(&camMutex);
         {
             camera.read(recFrame);
         }
         pthread_mutex_unlock(&camMutex);
+        */
 
         if (!camera.isOpened()) {
             cout << "Failed to connect to the camera." << endl;
             exit(0);
         }
 
-        output.write(recFrame);
+        output.write(frame);
     }
 
     output.release();

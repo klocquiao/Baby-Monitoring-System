@@ -12,6 +12,8 @@
 #include <vector>
 #include <iomanip>
 #include <ctime>
+#include <string>
+#include <sstream>
 
 #define FRAME_WIDTH 544
 #define FRAME_HEIGHT 288
@@ -23,5 +25,7 @@ bool checkForMotion(void);
 
 void startRecorder(void);
 void stopRecorder(void);
+
+void cancelTimer(void);
 
 #endif
