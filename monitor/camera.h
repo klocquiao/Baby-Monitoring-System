@@ -15,17 +15,12 @@
 #include <string>
 #include <sstream>
 
-#define FRAME_WIDTH 544
-#define FRAME_HEIGHT 288
-
-void startCamera(void);
+bool startCamera(int time);
 void stopCamera(void);
 void updateFirstInitialFrame(void);
-bool checkForMotion(void);
+bool getIsMotionDetected(void);
 
 void startRecorder(void);
 void stopRecorder(void);
-
-void cancelTimer(void);
 
 #endif

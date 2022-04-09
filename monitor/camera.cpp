@@ -9,8 +9,8 @@ using namespace std;
 using namespace cv;
 using MJPEGStreamer = nadjieb::MJPEGStreamer;
 
-#define RECORDING_LENGTH_SEC 30
-
+#define RECORDING_LENGTH_USER_SEC 10
+#define RECORDING_LENGTH_AUTO_SEC 30
 #define FRAME_WIDTH 544
 #define FRAME_HEIGHT 288
 #define FILE_PATH "/mnt/remote/saved/monitor_"
@@ -19,14 +19,14 @@ using MJPEGStreamer = nadjieb::MJPEGStreamer;
 static pthread_t cameraID;
 static pthread_t recorderID;
 static pthread_t timerID;
-//static pthread_mutex_t camMutex = PTHREAD_MUTEX_INITIALIZER;
+
+static pthread_mutex_t camMutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t recordMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void* cameraRunner(void* arg);
 static void* recorderRunner(void* arg);
-static void* timerRunner(void* arg);
-
-static bool isCamStopping = false;
-static bool isRecStopping = false;
+static void* timer30Runner(void* arg);
+static void* timer15Runner(void* arg);
 
 static VideoCapture camera(0);
 
@@ -36,7 +36,11 @@ static Mat frameDelta;
 static Mat thresh;
 static Mat firstFrame;
 
+static bool isCamStopping = false;
+static bool isRecStopping = false;
 static bool isMotionDetected = true;
+static bool isRecording = false;
+
 
 void startCamera(void) {
     pthread_create(&cameraID, NULL, cameraRunner, NULL);
@@ -45,20 +49,6 @@ void startCamera(void) {
 void stopCamera(void) {
     isCamStopping = true;
     pthread_join(cameraID, NULL);
-}
-
-void updateFirstInitialFrame() {
-    cvtColor(frame, firstFrame, COLOR_BGR2GRAY);
-    GaussianBlur(firstFrame, firstFrame, Size(21, 21), 0);
-    isMotionDetected = false;
-}
-
-bool checkForMotion() {
-    if (isMotionDetected) {
-        return true;
-    }
-
-    return false;
 }
 
 void* cameraRunner(void* arg) {
@@ -76,11 +66,11 @@ void* cameraRunner(void* arg) {
     updateFirstInitialFrame();
 
     while (!isCamStopping) {
-        //pthread_mutex_lock(&camMutex);
-        //{
+        pthread_mutex_lock(&camMutex);
+        {
             camera.read(frame);
-        //}
-        //pthread_mutex_unlock(&camMutex);
+        }
+        pthread_mutex_unlock(&camMutex);
 
         // Convert current frame to grayscale
         cvtColor(frame, gray, COLOR_BGR2GRAY);
@@ -93,11 +83,12 @@ void* cameraRunner(void* arg) {
         dilate(thresh, thresh, Mat(), Point(-1,-1), 2);
         findContours(thresh, cnts, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
-        if (isMotionDetected == false) {
+        if (!isMotionDetected) {
             for (unsigned int i = 0; i < cnts.size(); i++) {
                 if (contourArea(cnts[i]) >= 3500) {
                     putText(frame, "Motion Detected", Point(10, 20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,255),2);
-                    isMotionDetected = true; 
+                    isMotionDetected = true;
+                    startRecorder(false);
                     break;
                 }
             }
@@ -107,7 +98,6 @@ void* cameraRunner(void* arg) {
             // Leave for now; will replace with notif on front end
             putText(frame, "Motion Detected", Point(10, 20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,255),2);
         }
-
 
         if(waitKey(1) == 27){
             break;
@@ -124,19 +114,51 @@ void* cameraRunner(void* arg) {
 }
 
 // RECORDER
-void startRecorder(void) {
-    pthread_create(&recorderID, NULL, recorderRunner, NULL);
-    pthread_create(&timerID, NULL, timerRunner, NULL);
+bool startRecorder(bool isUser) {
+    pthread_mutex_lock(&recorderID)
+    {    
+        if (!isRecording) {
+            isRecStopping = false;
+            pthread_create(&recorderID, NULL, recorderRunner, NULL);
+
+            if (isUser) {
+                pthread_create(&timerID, NULL, timer30Runner, NULL);
+            }
+            else {
+                pthread_create(&timerID, NULL, timer15Runner, NULL);
+            }
+
+            isRecording = true;
+            return true;
+        }
+
+        return false;
+    }
+    pthread_mutex_unlock(&recorderID)
 }
 
 void stopRecorder(void) {
     isRecStopping = true;
     pthread_cancel(timerID);
     pthread_join(recorderID, NULL);
+
+    pthread_mutex_lock(&recorderID)
+    {    
+        isRecording = false;
+    }
+    pthread_mutex_unlock(&recorderID)
 }
 
-void* timerRunner(void* arg) {
-    struct timespec reqDelay = {RECORDING_LENGTH_SEC, 0};
+void* timer30Runner(void* arg) {
+    struct timespec reqDelay = {RECORDING_LENGTH_USER_SEC, 0};
+    nanosleep(&reqDelay, (struct timespec *) NULL);
+    stopRecorder();
+
+    return NULL;
+}
+
+void* timer15Runner(void* arg) {
+    struct timespec reqDelay = {RECORDING_LENGTH_AUTO_SEC, 0};
     nanosleep(&reqDelay, (struct timespec *) NULL);
     stopRecorder();
 
@@ -152,29 +174,33 @@ void* recorderRunner(void* arg) {
     string timeStr = stringStreamForTime.str();
 
     VideoWriter output("/mnt/remote/saved/output_" + timeStr + ".avi", 
-        VideoWriter::fourcc('M', 'J', 'P', 'G'), 15, Size(FRAME_WIDTH, FRAME_HEIGHT));
+        VideoWriter::fourcc('M', 'J', 'P', 'G'), 10, Size(FRAME_WIDTH, FRAME_HEIGHT));
 
     while(!isRecStopping) {
-        /*Mat recFrame;
-
         pthread_mutex_lock(&camMutex);
         {
-            camera.read(recFrame);
+            output.write(frame);
         }
         pthread_mutex_unlock(&camMutex);
-        */
-
-        if (!camera.isOpened()) {
-            cout << "Failed to connect to the camera." << endl;
-            exit(0);
-        }
-
-        output.write(frame);
     }
 
     output.release();
     return NULL;
 }         
 
+// OTHER
+void updateFirstInitialFrame() {
+    cvtColor(frame, firstFrame, COLOR_BGR2GRAY);
+    GaussianBlur(firstFrame, firstFrame, Size(21, 21), 0);
+    isMotionDetected = false;
+}
 
+bool getIsMotionDetected() {
+    if (isMotionDetected) {
+        return true;
+    }
+
+    return false;
+    
+}
 

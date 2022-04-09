@@ -48,6 +48,9 @@ function handleCommand(socket) {
 			else if (reply == "notRecording") {
 				socket.emit("commandStopRecord", reply);
 			}	
+			else if (reply == "recordingFail") {
+				socket.emit("commandRecordFailure", reply);
+			}	
 			else if (reply == "updating") {
 				socket.emit("commandUpdateFrame", reply);
 			}			

@@ -61,8 +61,12 @@ static void replyHandler(const char* messageRx) {
         sendPing();
     }
     else if(strncmp(messageRx, "record", MAX_LEN) == 0) {
-        startRecorder();
-        sendReply("recording");
+        if (startRecorder(true)) {
+            sendReply("recording");
+        }
+        else {
+            sendReply("recordingFail");
+        }
     }
     else if(strncmp(messageRx, "stopRecord", MAX_LEN) == 0) {
         stopRecorder();
@@ -73,7 +77,7 @@ static void replyHandler(const char* messageRx) {
         sendReply("updating");
     }
     else if(strncmp(messageRx, "checkForMotion", MAX_LEN) == 0) {
-        if (checkForMotion()) {
+        if (getIsMotionDetected()) {
             sendReply("motion");
         }
         else {

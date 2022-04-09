@@ -45,6 +45,9 @@ $(document).ready(function() {
 		}, 30000);
 	});
 
+	socket.on('commandRecordFailure', function(result) {
+		// Show message that program is currently recording
+	});
 
 	socket.on('commandUpdateFrame', function(result) {
 		// Reset the initial frame;
