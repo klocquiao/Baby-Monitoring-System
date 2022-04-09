@@ -16,21 +16,21 @@ static int socketDescriptor;
 static struct sockaddr_in localSin;
 static struct sockaddr_in remoteSin;
 
-static void* receiverRunner(void* arg);
+static void *receiverRunner(void *arg);
 
-static void replyHandler(const char* command);
+static void replyHandler(const char *command);
 static void sendPing();
-static void sendReply(const char* reply);
+static void sendReply(const char *reply);
 
 using namespace std;
 
 void startReceiver() {
     memset(&localSin, 0, sizeof(localSin));
-    localSin.sin_family = AF_INET; 
+    localSin.sin_family = AF_INET;
     localSin.sin_addr.s_addr = htonl(INADDR_ANY);
     localSin.sin_port = htons(PORT);
     socketDescriptor = socket(PF_INET, SOCK_DGRAM, 0);
-    bind (socketDescriptor, (struct sockaddr*) &localSin, sizeof(localSin));
+    bind(socketDescriptor, (struct sockaddr *)&localSin, sizeof(localSin));
     pthread_create(&receiverID, NULL, receiverRunner, NULL);
 }
 
@@ -41,13 +41,13 @@ void stopReceiver(void) {
     close(socketDescriptor);
 }
 
-void* receiverRunner(void* arg) {
-    while(!isShuttingDown) {        
+void *receiverRunner(void *arg) {
+    while (!isShuttingDown) {
         char messageRx[MAX_LEN];
         unsigned int sinLen = sizeof(remoteSin);
         int bytesRx = recvfrom(socketDescriptor,
-            messageRx, MAX_LEN - 1, 0,
-            (struct sockaddr *) &remoteSin, &sinLen);
+                               messageRx, MAX_LEN - 1, 0,
+                               (struct sockaddr *)&remoteSin, &sinLen);
         messageRx[bytesRx] = '\0';
 
         replyHandler(messageRx);
@@ -56,11 +56,10 @@ void* receiverRunner(void* arg) {
     return NULL;
 }
 
-static void replyHandler(const char* messageRx) {
-    if(strncmp(messageRx, "test", MAX_LEN) == 0) {
+static void replyHandler(const char *messageRx) {
+    if (strncmp(messageRx, "test", MAX_LEN) == 0) {
         sendPing();
-    }
-    else if(strncmp(messageRx, "record", MAX_LEN) == 0) {
+    } else if (strncmp(messageRx, "record", MAX_LEN) == 0) {
         startRecorder();
         sendReply("recording");
     }
@@ -77,13 +76,13 @@ static void replyHandler(const char* messageRx) {
         }
     }
 }
-    
-static void sendReply(const char* reply) {
+
+static void sendReply(const char *reply) {
     int sinLen = sizeof(remoteSin);
     sendto(socketDescriptor,
-    reply, strlen(reply),
-    0,
-    (struct sockaddr *) &remoteSin, sinLen);
+           reply, strlen(reply),
+           0,
+           (struct sockaddr *)&remoteSin, sinLen);
 }
 
 static void sendPing() {
