@@ -45,7 +45,6 @@ $(document).ready(function() {
 		}
 	} 
 
-<<<<<<< Updated upstream
 	$('#functionRecord').click(function(){
 		sendMonitorCommand("record");
 	});	
@@ -66,14 +65,10 @@ $(document).ready(function() {
 		sendMonitorCommand("stopPlayback");
 	});
 
-=======
-	//Test5
 	$('#modal1').click(function(){
 		sendMonitorCommand("modal1");
 	});
 	
-	
->>>>>>> Stashed changes
 	socket.on('commandTest', function(result) {
 		$('#status-text').text(result);
 

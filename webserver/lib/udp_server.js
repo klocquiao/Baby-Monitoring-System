@@ -53,9 +53,6 @@ function handleCommand(socket) {
 			}		
 			else if (reply == "record" || reply == "noRecord") {
 				socket.emit("commandUpdateRecording", reply);
-			}		
-			else {
-				socket.emit('commandTest', reply);
 			}
 
 			client.close();
