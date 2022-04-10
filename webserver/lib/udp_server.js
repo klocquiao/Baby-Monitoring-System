@@ -45,18 +45,15 @@ function handleCommand(socket) {
 			if (reply == "recording") {
 				socket.emit('commandRecord', reply);
 			}
-			else if (reply == "notRecording") {
-				socket.emit("commandStopRecord", reply);
-			}	
-			else if (reply == "recordingFail") {
-				socket.emit("commandRecordFailure", reply);
-			}	
 			else if (reply == "updating") {
 				socket.emit("commandUpdateFrame", reply);
 			}			
 			else if (reply == "motion" || reply == "noMotion") {
 				socket.emit("commandUpdateMotion", reply);
-			}			
+			}		
+			else if (reply == "record" || reply == "noRecord") {
+				socket.emit("commandUpdateRecording", reply);
+			}		
 			else {
 				socket.emit('commandTest', reply);
 			}

@@ -60,28 +60,31 @@ static void replyHandler(const char* messageRx) {
     if(strncmp(messageRx, "test", MAX_LEN) == 0) {
         sendPing();
     }
+
     else if(strncmp(messageRx, "record", MAX_LEN) == 0) {
-        if (startRecorder(true)) {
-            sendReply("recording");
-        }
-        else {
-            sendReply("recordingFail");
-        }
+        startRecorder();
+        sendReply("recording");
     }
-    else if(strncmp(messageRx, "stopRecord", MAX_LEN) == 0) {
-        stopRecorder();
-        sendReply("notRecording");
-    }
+
     else if(strncmp(messageRx, "updateFrame", MAX_LEN) == 0) {
         updateFirstInitialFrame();
         sendReply("updating");
     }
-    else if(strncmp(messageRx, "checkForMotion", MAX_LEN) == 0) {
+        else if(strncmp(messageRx, "checkForMotion", MAX_LEN) == 0) {
         if (getIsMotionDetected()) {
             sendReply("motion");
         }
         else {
             sendReply("noMotion");
+        }
+    }
+    
+    else if(strncmp(messageRx, "checkForRecording", MAX_LEN) == 0) {
+        if (getIsRecording()) {
+            sendReply("record");
+        }
+        else {
+            sendReply("noRecord");
         }
     }
 }

@@ -15,12 +15,13 @@
 #include <string>
 #include <sstream>
 
-bool startCamera(int time);
+void startCamera(void);
 void stopCamera(void);
 void updateFirstInitialFrame(void);
 bool getIsMotionDetected(void);
 
 void startRecorder(void);
 void stopRecorder(void);
+bool getIsRecording(void);
 
 #endif
