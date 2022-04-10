@@ -18,6 +18,18 @@ $(document).ready(function() {
 		sendMonitorCommand("updateFrame");
 	});
 
+  $('#functionStartPlayback1').click(function(){
+		sendMonitorCommand("startPlayback1");
+	});	
+
+  $('#functionStartPlayback2').click(function(){
+		sendMonitorCommand("startPlayback2");
+	});	
+
+  $('#functionStopPlayback').click(function(){
+		sendMonitorCommand("stopPlayback");
+	});
+
 	socket.on('commandTest', function(result) {
 		$('#status-text').text(result);
 	});
@@ -27,7 +39,7 @@ $(document).ready(function() {
 		$("#functionRecord").prop('disabled', true);
 
 		setTimeout(function() {
-            $("#functionRecord").prop('disabled', false);
+      $("#functionRecord").prop('disabled', false);
 		}, 20000);
 	});
 

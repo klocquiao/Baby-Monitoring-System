@@ -18,7 +18,7 @@ exports.listen = function(server) {
 };
 
 function handleCommand(socket) {
-	// Pased string of comamnd to relay
+	// Parsed command to relay
 	socket.on('monitor', function(data) {
 		console.log('monitor command: ' + data);
 
@@ -62,7 +62,7 @@ function handleCommand(socket) {
 			console.log("closed");
 		});
 		client.on("UDP Client: error", function(err) {
-			console.log("error: ",err);
+			console.log("error: ", err);
 		});
 	});
 };
