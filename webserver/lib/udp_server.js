@@ -50,7 +50,10 @@ function handleCommand(socket) {
 			}			
 			else if (reply == "motion" || reply == "noMotion") {
 				socket.emit("commandUpdateMotion", reply);
-			}			
+			}		
+			else if (reply == "record" || reply == "noRecord") {
+				socket.emit("commandUpdateRecording", reply);
+			}		
 			else {
 				socket.emit('commandTest', reply);
 			}

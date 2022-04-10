@@ -5,6 +5,7 @@
 var socket = io.connect();
 $(document).ready(function() {
 	window.setInterval(function() {sendMonitorCommand('checkForMotion')}, 1000);
+	window.setInterval(function() {sendMonitorCommand('checkForRecording')}, 3000);
 
 	$('#functionTest').click(function(){
 		sendMonitorCommand("test");
@@ -32,26 +33,40 @@ $(document).ready(function() {
 
 	socket.on('commandTest', function(result) {
 		$('#status-text').text(result);
+
 	});
 
 	socket.on('commandRecord', function(result) {
-		$("#functionRecord").prop("value", "Recording...");
-		$("#functionRecord").prop('disabled', true);
-
-		setTimeout(function() {
-      $("#functionRecord").prop('disabled', false);
-		}, 20000);
+		preventRecording();
 	});
 
-
 	socket.on('commandUpdateFrame', function(result) {
-		// Reset the initial frame;
 	});	
+
 	socket.on('commandUpdateMotion', function(result) {
 		$('#status-text').text(result);
+	});
+
+	socket.on('commandUpdateRecording', function(result) {
+		if (result == "noRecord") {
+			allowRecording();
+		}
+		else {
+			preventRecording();
+		}
 	});
 });
 
 function sendMonitorCommand(message) {
 	socket.emit('monitor', message);
 };
+
+function allowRecording() {
+	$("#functionRecord").prop("value", "Record");
+	$("#functionRecord").prop('disabled', false);
+}
+
+function preventRecording() {
+	$("#functionRecord").prop("value", "Recording...");
+	$("#functionRecord").prop('disabled', true);
+}

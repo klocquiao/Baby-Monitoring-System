@@ -64,24 +64,45 @@ void *receiverRunner(void *arg) {
 static void replyHandler(const char *messageRx) {
     if (strncmp(messageRx, "test", MAX_LEN) == 0) {
         sendPing();
-    } else if (strncmp(messageRx, "record", MAX_LEN) == 0) {
+    }
+
+    else if(strncmp(messageRx, "record", MAX_LEN) == 0) {
         startRecorder();
         sendReply("recording");
-    } else if (strncmp(messageRx, "updateFrame", MAX_LEN) == 0) {
+    }
+
+    else if(strncmp(messageRx, "updateFrame", MAX_LEN) == 0) {
         updateFirstInitialFrame();
         sendReply("updating");
-    } else if (strncmp(messageRx, "checkForMotion", MAX_LEN) == 0) {
-        if (checkForMotion()) {
+    }
+
+    else if(strncmp(messageRx, "checkForMotion", MAX_LEN) == 0) {
+        if (getIsMotionDetected()) {
             sendReply("motion");
         } else {
             sendReply("noMotion");
         }
-    } else if (strncmp(messageRx, "startPlayback1", MAX_LEN) == 0) {
+    } 
+
+    else if (strncmp(messageRx, "startPlayback1", MAX_LEN) == 0) {
         audio->startPlayback("lullaby1.wav");
-    } else if (strncmp(messageRx, "startPlayback2", MAX_LEN) == 0) {
+    } 
+
+    else if (strncmp(messageRx, "startPlayback2", MAX_LEN) == 0) {
         audio->startPlayback("lullaby2.wav");
-    } else if (strncmp(messageRx, "stopPlayback", MAX_LEN) == 0) {
+    } 
+    
+    else if (strncmp(messageRx, "stopPlayback", MAX_LEN) == 0) {
         audio->stopPlayback();
+    }
+    
+    else if(strncmp(messageRx, "checkForRecording", MAX_LEN) == 0) {
+        if (getIsRecording()) {
+            sendReply("record");
+        }
+        else {
+            sendReply("noRecord");
+        }
     }
 }
 

@@ -10,16 +10,18 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <vector>
-
-#define FRAME_WIDTH 544
-#define FRAME_HEIGHT 288
+#include <iomanip>
+#include <ctime>
+#include <string>
+#include <sstream>
 
 void startCamera(void);
 void stopCamera(void);
 void updateFirstInitialFrame(void);
-bool checkForMotion(void);
+bool getIsMotionDetected(void);
 
 void startRecorder(void);
 void stopRecorder(void);
+bool getIsRecording(void);
 
 #endif
