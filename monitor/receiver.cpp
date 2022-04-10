@@ -22,8 +22,9 @@ static Audio *audio;
 static void *receiverRunner(void *arg);
 
 static void replyHandler(const char *command);
-static void sendPing();
 static void sendReply(const char *reply);
+
+static bool isMotionNotified = false;
 
 using namespace std;
 
@@ -61,11 +62,8 @@ void *receiverRunner(void *arg) {
     return NULL;
 }
 
-<<<<<<< Updated upstream
 static void replyHandler(const char *messageRx) {
-    if (strncmp(messageRx, "test", MAX_LEN) == 0) {
-        sendPing();
-    } else if (strncmp(messageRx, "record", MAX_LEN) == 0) {
+    if (strncmp(messageRx, "record", MAX_LEN) == 0) {
         startRecorder();
         sendReply("recording");
     } else if (strncmp(messageRx, "updateFrame", MAX_LEN) == 0) {
@@ -74,6 +72,8 @@ static void replyHandler(const char *messageRx) {
     } else if (strncmp(messageRx, "checkForMotion", MAX_LEN) == 0) {
         if (getIsMotionDetected()) {
             sendReply("motion");
+        } else {
+            sendReply("noMotion");
         }
     } else if (strncmp(messageRx, "startPlayback1", MAX_LEN) == 0) {
         audio->startPlayback("lullaby1.wav");

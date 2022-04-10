@@ -1,6 +1,14 @@
 "use strict";
 // Client-side interactions with the browser.
 
+function closeModal() {
+  sendMonitorCommand("updateFrame");
+
+  const modal = document.getElementById("myModal");
+  modal.style.display = "none";
+  $('#modal-content').text("");
+}
+
 // Make connection to server when web page is fully loaded.
 var socket = io.connect();
 $(document).ready(function() {
@@ -10,15 +18,9 @@ $(document).ready(function() {
 	// Get the <span> element that closes the modal
 	var span = document.getElementsByClassName("close")[0];
 	// When the user clicks on <span> (x), close the modal
-	span.onclick = function() {
-		modal.style.display = "none";
-	}
+	span.onclick = closeModal;
 	// When the user clicks anywhere outside of the modal, close it
-	window.onclick = function(event) {
-		if (event.target == modal) {
-			modal.style.display = "none";
-		}
-	} 
+	window.onclick = closeModal;
 
 	$('#functionRecord').click(function(){
 		sendMonitorCommand("record");
@@ -40,29 +42,23 @@ $(document).ready(function() {
 		sendMonitorCommand("stopPlayback");
 	});
 
-	$('#modal1').click(function(){
-		sendMonitorCommand("checkForMotion");
-	});
-	
-	socket.on('commandTest', function(result) {
-		$('#status-text').text(result);
-
-	});
-
 	socket.on('commandRecord', function(result) {
 		preventRecording();
 	});
 
 	socket.on('commandUpdateFrame', function(result) {
+
 	});	
 
 	socket.on('commandUpdateMotion', function(result) {
     $('#status-text').text(result);
 
 		// Display modal
-    var modal = document.getElementById("myModal");
-    modal.style.display = "block";
-    $('#modal-content').text(result);
+    if (result == "motion") {
+      const modal = document.getElementById("myModal");
+      modal.style.display = "block";
+      $('#modal-content').text(result);
+    }
 	});
 
 	socket.on('commandUpdateRecording', function(result) {
