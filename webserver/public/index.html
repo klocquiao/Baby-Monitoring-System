@@ -1,17 +1,31 @@
 <!DOCTYPE html>
 <html lang='en'>
 <head>
-	<title>Hello Baby Monitor</title>
+	<title>Baby Monitor</title>
+
 	<link rel='stylesheet' href='/stylesheets/style.css'></link>
 </head>
 
 <body>
 	<div id='content'>
-		<h1>Hello Baby Monitor</h1>
-		<div id='monitor'>
-			<img src="http://192.168.7.2:8084/stream">
+		<div class="top">
+			<div class="row padding black">
+				<div class="col s3">
+					<a href="#" class="button block black">HOME</a>
+				</div>
+				<div class="col s3">
+					<a href="#monitor" class="button block black">MONITOR</a>
+				</div>
+				<div class="col s3">
+					<a href="#about" class="button block black">ABOUT</a>
+				</div>			
+				<div class="col s3">
+					<a href="#" class="button block black">.</a>
+				</div>
+			</div>
 		</div>
 
+<<<<<<< Updated upstream
 		<div id="functions">
 			<input type="button" id="functionTest" value="Test">
 			<input type="button" id="functionRecord" value="Record">
@@ -20,12 +34,69 @@
       <input type="button" id="functionStartPlayback2" value="Lullaby 2">
       <input type="button" id="functionStopPlayback" value="Stop lullaby">
 		</div>
+=======
+		<header class="bgimg display-container" id="home">
+			<div class="display-middle center">
+				<span class="text-white" style="font-size:90px">
+					The Baby Monitor
+				</span>
+			</div>
+			<div class="display-bottomright padding-large" style="text-align: right;">
+				<span class="text-white">
+					Kyle Locquiao
+					<br>
+					Seung Ho Han
+					<br>
+					Taha Liaqat
+					<br>
+					Avneet Sekhon
+				</span>
 
-		<div id="status-box">
-			<div><code id="status-text">Nothing happened yet...</code></div>
+			</div>
+		</header>
+		<div class="container">
+			<div id="left-box">
+				<div id='monitor'>
+					<img src="http://192.168.7.2:8084/stream">
+				</div>
+			</div>
+			<div id="status-box">
+				<div id="functions">
+					<input type="button" class="button3" id="functionRecord" value="Record">
+					<input type="button" class="button3" id="functionLullaby1" value="Lullaby 1">
+					<input type="button" class="button3" id="functionLullaby2" value="Lullaby 2">
+					<input type="button" class="button3" id="functionMDFrame" value="Update MD Frame">
+					<!-- Trigger/Open The Modal -->
+					<input type="button" class="button3" id="modal1" value="Open Modal 1">
+					<!-- <button id="myBtn">Open Modal</button> -->
+					<!-- The Modal -->
+					<div id="myModal" class="modal">
+						<!-- Modal content -->
+						<div class="modal-content">
+							<span class="close">&times;</span>
+							<p>Some text in the Modal..</p>
+						</div>
+					</div> 
+					<h2 id="status-title">Response:</h2>
+					<div><code id="status-text">Nothing happened yet...</code></div>
+				</div>
+			</div>
+			<div class="large">
+				<div id="about">
+					<div class="aboutcontent">
+						<h5 class="padding-64"><span class="tag wide">ABOUT THE MOINTOR</span></h5>
+						<p>
+							Our system will have a webcam to stream video and a microphone to stream audio. In addition, our system will notify users based on certain events (i.e. spike in audio) and have a speaker to playback saved audio (i.e for parents to comfort thir baby). Some additional features are remte control of the system, including turning the systemm on/off, moving the camera (could be automatic based on motion sensor), controlling the audio volume, zooming in/out of video, etc.
+						</p>
+>>>>>>> Stashed changes
+
+					</div>
+				</div>
+
+			</div>
 		</div>
 	</div>
-	
+
 	<script src='/socket.io/socket.io.js' type='text/javascript'></script>
 	<script src='http://code.jquery.com/jquery-1.8.0.min.js' type='text/javascript'></script>
 	<script src='javascripts/udp_ui.js' type='text/javascript'></script>
