@@ -17,5 +17,5 @@ app:
 clean:
 	rm -f *.o $(TARGET) $(OUTDIR)/$(TARGET)
 
-node:
+server:
 	cd webserver && ${MAKE}

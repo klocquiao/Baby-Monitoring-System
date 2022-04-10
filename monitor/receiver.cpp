@@ -9,12 +9,15 @@ https://github.com/derekmolloy/boneCV
 
 #include "receiver.h"
 #include "camera.h"
+
 static pthread_t receiverID;
 
 static bool isShuttingDown = false;
 static int socketDescriptor;
 static struct sockaddr_in localSin;
 static struct sockaddr_in remoteSin;
+
+static Audio *audio;
 
 static void *receiverRunner(void *arg);
 
@@ -24,7 +27,9 @@ static void sendReply(const char *reply);
 
 using namespace std;
 
-void startReceiver() {
+void startReceiver(Audio *p_audio) {
+    audio = p_audio;
+
     memset(&localSin, 0, sizeof(localSin));
     localSin.sin_family = AF_INET;
     localSin.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -62,18 +67,21 @@ static void replyHandler(const char *messageRx) {
     } else if (strncmp(messageRx, "record", MAX_LEN) == 0) {
         startRecorder();
         sendReply("recording");
-    }
-    else if(strncmp(messageRx, "updateFrame", MAX_LEN) == 0) {
+    } else if (strncmp(messageRx, "updateFrame", MAX_LEN) == 0) {
         updateFirstInitialFrame();
         sendReply("updating");
-    }
-    else if(strncmp(messageRx, "checkForMotion", MAX_LEN) == 0) {
+    } else if (strncmp(messageRx, "checkForMotion", MAX_LEN) == 0) {
         if (checkForMotion()) {
             sendReply("motion");
-        }
-        else {
+        } else {
             sendReply("noMotion");
         }
+    } else if (strncmp(messageRx, "startPlayback1", MAX_LEN) == 0) {
+        audio->startPlayback("lullaby1.wav");
+    } else if (strncmp(messageRx, "startPlayback2", MAX_LEN) == 0) {
+        audio->startPlayback("lullaby2.wav");
+    } else if (strncmp(messageRx, "stopPlayback", MAX_LEN) == 0) {
+        audio->stopPlayback();
     }
 }
 

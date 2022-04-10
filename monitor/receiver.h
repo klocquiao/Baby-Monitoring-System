@@ -1,20 +1,22 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <pthread.h>
-#include <netdb.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <vector>
 #include <algorithm>
 #include <fstream>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <pthread.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <vector>
 
-void startReceiver(void);
+#include "audio.h"
+
+void startReceiver(Audio *audio);
 void stopReceiver(void);
 
 #endif
