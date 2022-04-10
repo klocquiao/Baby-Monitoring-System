@@ -23,15 +23,7 @@ static void *receiverRunner(void *arg);
 
 static void replyHandler(const char *command);
 static void sendPing();
-<<<<<<< Updated upstream
 static void sendReply(const char *reply);
-=======
-static void sendPing2();
-static void sendPing3();
-static void sendPing4();
-static void sendPing5();
-static void sendReply(const char* reply);
->>>>>>> Stashed changes
 
 using namespace std;
 
@@ -73,62 +65,26 @@ void *receiverRunner(void *arg) {
 static void replyHandler(const char *messageRx) {
     if (strncmp(messageRx, "test", MAX_LEN) == 0) {
         sendPing();
-    }
-
-    else if(strncmp(messageRx, "record", MAX_LEN) == 0) {
+    } else if (strncmp(messageRx, "record", MAX_LEN) == 0) {
         startRecorder();
         sendReply("recording");
-    }
-
-    else if(strncmp(messageRx, "updateFrame", MAX_LEN) == 0) {
+    } else if (strncmp(messageRx, "updateFrame", MAX_LEN) == 0) {
         updateFirstInitialFrame();
         sendReply("updating");
-    }
-
-    else if(strncmp(messageRx, "checkForMotion", MAX_LEN) == 0) {
+    } else if (strncmp(messageRx, "checkForMotion", MAX_LEN) == 0) {
         if (getIsMotionDetected()) {
             sendReply("motion");
-        } else {
-            sendReply("noMotion");
         }
-    } 
-
-    else if (strncmp(messageRx, "startPlayback1", MAX_LEN) == 0) {
+    } else if (strncmp(messageRx, "startPlayback1", MAX_LEN) == 0) {
         audio->startPlayback("lullaby1.wav");
-    } 
-
-    else if (strncmp(messageRx, "startPlayback2", MAX_LEN) == 0) {
+    } else if (strncmp(messageRx, "startPlayback2", MAX_LEN) == 0) {
         audio->startPlayback("lullaby2.wav");
-    } 
-    
-    else if (strncmp(messageRx, "stopPlayback", MAX_LEN) == 0) {
+    } else if (strncmp(messageRx, "stopPlayback", MAX_LEN) == 0) {
         audio->stopPlayback();
-    }
-=======
-static void replyHandler(const char* messageRx) {
-    if(strncmp(messageRx, "record", MAX_LEN) == 0) {
-        sendPing();
-    }
-    else if(strncmp(messageRx, "lullaby1", MAX_LEN) == 0) {
-        sendPing2();
-    }
-    else if(strncmp(messageRx, "lullaby2", MAX_LEN) == 0) {
-        sendPing3();
-    }    
-    else if(strncmp(messageRx, "mdframe", MAX_LEN) == 0) {
-        sendPing4();
-    }    
-    else if(strncmp(messageRx, "modal1", MAX_LEN) == 0) {
-        sendPing5();
-    }
-}
->>>>>>> Stashed changes
-    
-    else if(strncmp(messageRx, "checkForRecording", MAX_LEN) == 0) {
+    } else if (strncmp(messageRx, "checkForRecording", MAX_LEN) == 0) {
         if (getIsRecording()) {
             sendReply("record");
-        }
-        else {
+        } else {
             sendReply("noRecord");
         }
     }
@@ -140,20 +96,4 @@ static void sendReply(const char *reply) {
            reply, strlen(reply),
            0,
            (struct sockaddr *)&remoteSin, sinLen);
-}
-
-static void sendPing() {
-    sendReply("Recording Video!");
-}
-static void sendPing2() {
-    sendReply("Playing lullaby 1!");
-}
-static void sendPing3() {
-    sendReply("Playing lullaby 2!");
-}
-static void sendPing4() {
-    sendReply("Motion detection frame updated!");
-}
-static void sendPing5() {
-    sendReply("Modal 1 open!");
 }

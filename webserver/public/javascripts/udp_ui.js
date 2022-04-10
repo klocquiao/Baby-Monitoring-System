@@ -7,33 +7,8 @@ $(document).ready(function() {
 	window.setInterval(function() {sendMonitorCommand('checkForMotion')}, 1000);
 	window.setInterval(function() {sendMonitorCommand('checkForRecording')}, 3000);
 
-	//Test1
-	$('#functionRecord').click(function(){
-		sendMonitorCommand("record");
-	});
-	//Test2
-	$('#functionLullaby1').click(function(){
-		sendMonitorCommand("lullaby1");
-	});
-	//Test3
-	$('#functionLullaby2').click(function(){
-		sendMonitorCommand("lullaby2");
-	});
-	//Test4
-	$('#functionMDFrame').click(function(){
-		sendMonitorCommand("mdframe");
-	});
-
-	// Get the modal
-	var modal = document.getElementById("myModal");
-	// Get the button that opens the modal
-	var btn = document.getElementById("modal1");
 	// Get the <span> element that closes the modal
 	var span = document.getElementsByClassName("close")[0];
-	// When the user clicks on the button, open the modal
-	btn.onclick = function() {
-		modal.style.display = "block";
-	}
 	// When the user clicks on <span> (x), close the modal
 	span.onclick = function() {
 		modal.style.display = "none";
@@ -66,7 +41,7 @@ $(document).ready(function() {
 	});
 
 	$('#modal1').click(function(){
-		sendMonitorCommand("modal1");
+		sendMonitorCommand("checkForMotion");
 	});
 	
 	socket.on('commandTest', function(result) {
@@ -82,7 +57,12 @@ $(document).ready(function() {
 	});	
 
 	socket.on('commandUpdateMotion', function(result) {
-		$('#status-text').text(result);
+    $('#status-text').text(result);
+
+		// Display modal
+    var modal = document.getElementById("myModal");
+    modal.style.display = "block";
+    $('#modal-content').text(result);
 	});
 
 	socket.on('commandUpdateRecording', function(result) {
