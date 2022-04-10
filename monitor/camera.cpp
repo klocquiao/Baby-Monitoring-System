@@ -19,7 +19,7 @@ static pthread_t cameraID;
 static pthread_t recorderID;
 static pthread_t timerID;
 
-//static pthread_mutex_t camMutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t camMutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t recordMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void* cameraRunner(void* arg);
@@ -38,6 +38,9 @@ static bool isCamStopping = false;
 static bool isRecStopping = false;
 static bool isMotionDetected = true;
 static bool isRecording = false;
+
+static pthread_cond_t okayToWriteFrame = PTHREAD_COND_INITIALIZER;
+static bool isNewFrame = false;
 
 
 void startCamera(void) {
@@ -64,11 +67,13 @@ void* cameraRunner(void* arg) {
     updateFirstInitialFrame();
 
     while (!isCamStopping) {
-        //pthread_mutex_lock(&camMutex);
-        //{
+        pthread_mutex_lock(&camMutex);
+        {
             camera.read(frame);
-        //}
-        //pthread_mutex_unlock(&camMutex);
+            isNewFrame = true;
+            pthread_cond_signal(&okayToWriteFrame);
+        }
+        pthread_mutex_unlock(&camMutex);
 
         // Convert current frame to grayscale
         cvtColor(frame, gray, COLOR_BGR2GRAY);
@@ -91,7 +96,7 @@ void* cameraRunner(void* arg) {
             }
         }
 
-        if(waitKey(1) == 27){
+        if (waitKey(1) == 27){
             break;
         }
 
@@ -149,18 +154,21 @@ void* recorderRunner(void* arg) {
     string timeStr = stringStreamForTime.str();
 
     VideoWriter output("/mnt/remote/saved/output_" + timeStr + ".avi", 
-        VideoWriter::fourcc('M', 'J', 'P', 'G'), 15, Size(FRAME_WIDTH, FRAME_HEIGHT));
+        VideoWriter::fourcc('M', 'J', 'P', 'G'), 7, Size(FRAME_WIDTH, FRAME_HEIGHT));
 
     while(!isRecStopping) {
-        //pthread_mutex_lock(&camMutex);
-        //{
-            output.write(frame);
-        //}
-        //pthread_mutex_unlock(&camMutex);
-
-        if(waitKey(3) == 27){
-            break;
+        Mat recFrame;
+        pthread_mutex_lock(&camMutex);
+        {
+            while (!isNewFrame) {
+                pthread_cond_wait(&okayToWriteFrame, &camMutex);
+            }
+            recFrame = frame;
+            isNewFrame = false;
         }
+        pthread_mutex_unlock(&camMutex);
+
+        output.write(frame);
     }
     
     output.release();
