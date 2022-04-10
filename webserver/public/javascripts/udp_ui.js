@@ -28,7 +28,7 @@ $(document).ready(function() {
 
   $('#functionStopPlayback').click(function(){
 		sendMonitorCommand("stopPlayback");
-	});	
+	});
 
 	socket.on('commandTest', function(result) {
 		$('#status-text').text(result);

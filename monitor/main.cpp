@@ -5,8 +5,6 @@
 #include "camera.h"
 #include "receiver.h"
 
-#define BUFFER_LEN 1024
-
 int main(int argc, const char *argv[]) {
     startCamera();
     Audio audio;
@@ -16,7 +14,7 @@ int main(int argc, const char *argv[]) {
     };
 
     stopReceiver();
-    // stopCamera();
+    stopCamera();
 
     return 0;
 }
