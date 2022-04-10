@@ -19,6 +19,18 @@ $(document).ready(function() {
 		sendMonitorCommand("updateFrame");
 	});
 
+  $('#functionStartPlayback1').click(function(){
+		sendMonitorCommand("startPlayback1");
+	});	
+
+  $('#functionStartPlayback2').click(function(){
+		sendMonitorCommand("startPlayback2");
+	});	
+
+  $('#functionStopPlayback').click(function(){
+		sendMonitorCommand("stopPlayback");
+	});
+
 	socket.on('commandTest', function(result) {
 		$('#status-text').text(result);
 
