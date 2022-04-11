@@ -180,11 +180,7 @@ void updateFirstInitialFrame() {
 }
 
 bool getIsMotionDetected() {
-    if (isMotionDetected) {
-        return true;
-    }
-
-    return false;
+    return isMotionDetected;
 }
 
 bool getIsRecording() {

@@ -1,3 +1,5 @@
+#include <chrono>
+#include <fstream>
 #include <iostream>
 
 #include "audio.h"
@@ -7,6 +9,54 @@
 
 #define AUDIO_DEVICE_NAME "USB Device 0x46d:0x825: Audio (hw:1,0)"
 #define OUT_FILENAME "out.wav"
+
+#define A2D_FILENAME "/sys/bus/iio/devices/iio:device0/in_voltage4_raw"
+#define AUDIO_DETECTION_THRESHOLD 10
+
+typedef struct {
+    short *container;
+    long head;
+    long tail;
+    long size;
+    long capacity;
+} CircularBuffer;
+
+void *allocateMemory(size_t size) {
+    void *p_new_memory = malloc(size);
+    if (p_new_memory == NULL) {
+        perror("ERROR: unable to malloc()");
+        exit(EXIT_FAILURE);
+    }
+    return p_new_memory;
+}
+
+CircularBuffer *initializeCircularBuffer(long capacity) {
+    CircularBuffer *new_buffer = (CircularBuffer *)allocateMemory(sizeof(CircularBuffer));
+    new_buffer->container = (short *)allocateMemory(sizeof(*new_buffer->container) * capacity);
+    new_buffer->head = 0;
+    new_buffer->tail = 0;
+    new_buffer->size = 0;
+    new_buffer->capacity = capacity;
+    return new_buffer;
+}
+
+void addToCircularBuffer(CircularBuffer *buffer, short value) {
+    if (buffer->size > 0) {
+        buffer->tail = (buffer->tail + 1) % buffer->capacity;
+    }
+    buffer->container[buffer->tail] = value;
+    if (buffer->size < buffer->capacity) {
+        buffer->size++;
+    } else {
+        buffer->head = (buffer->head + 1) % buffer->capacity;
+    }
+}
+
+void clearCircularBuffer(CircularBuffer *buffer) {
+    buffer->size = 0;
+    buffer->head = 0;
+    buffer->tail = 0;
+}
 
 int recordCallback(void *input, void *output, unsigned long frameCount,
                    const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData) {
@@ -31,9 +81,57 @@ int playbackCallback(void *input, void *output, unsigned long frameCount,
     return 0;
 }
 
+void audioDetectionCallback(bool *audioDetected) {
+    std::ifstream a2dStream(A2D_FILENAME);
+    short reading;
+    CircularBuffer *shortBuffer = initializeCircularBuffer(20);
+    CircularBuffer *longBuffer = initializeCircularBuffer(400);
+
+    while (true) {
+        a2dStream >> reading;
+
+        addToCircularBuffer(shortBuffer, reading);
+        addToCircularBuffer(longBuffer, reading);
+
+        // Calculate average
+        int n = shortBuffer->size;
+        int short_sum = 0;
+        for (int i = 0; i < n; i++) {
+            short_sum += shortBuffer->container[i];
+        }
+        int short_mean = short_sum / n;
+
+        n = longBuffer->size;
+        int long_sum = 0;
+        for (int i = 0; i < n; i++) {
+            long_sum += longBuffer->container[i];
+        }
+        int long_mean = long_sum / n;
+
+        int diff = long_mean - short_mean;
+        if (abs(diff) > AUDIO_DETECTION_THRESHOLD) {
+            *audioDetected = true;
+
+            std::cout << "I hear sound. Audio detected....\n";
+
+            clearCircularBuffer(shortBuffer);
+            clearCircularBuffer(longBuffer);
+
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+
+            *audioDetected = false;
+        }
+        a2dStream.seekg(0);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+}
+
 Audio::Audio() {
     playbackRunning = false;
     runRecord = false;
+
+    audioDetected = false;
+    a2dThread = std::thread(audioDetectionCallback, &audioDetected);
 
     // Initialize PortAudio
     PaError err;
@@ -95,6 +193,10 @@ Audio::~Audio() {
     Pa_CloseStream(&recordStream);
 
     Pa_Terminate();
+}
+
+bool Audio::isAudioDetected() {
+    return audioDetected;
 }
 
 void Audio::startPlayback(const char *filename) {

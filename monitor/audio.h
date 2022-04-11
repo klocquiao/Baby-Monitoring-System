@@ -18,11 +18,16 @@ class Audio {
     bool runRecord;
     std::thread recordThread;
 
+    bool audioDetected;
+    std::thread a2dThread;
+
   public:
     Audio();
     ~Audio();
 
     void record(const char *filename);
+
+    bool isAudioDetected();
 
     void startPlayback(const char *filename);
     void stopPlayback();

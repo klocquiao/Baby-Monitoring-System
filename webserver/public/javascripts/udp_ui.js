@@ -1,9 +1,9 @@
 "use strict";
 // Client-side interactions with the browser.
 
-function closeModal() {
-  sendMonitorCommand("updateFrame");
+var isMotionNotified = false;
 
+function closeModal() {
   const modal = document.getElementById("myModal");
   modal.style.display = "none";
   $('#modal-content').text("");
@@ -14,6 +14,7 @@ var socket = io.connect();
 $(document).ready(function() {
 	window.setInterval(function() {sendMonitorCommand('checkForMotion')}, 1000);
 	window.setInterval(function() {sendMonitorCommand('checkForRecording')}, 3000);
+  window.setInterval(function() {sendMonitorCommand('checkForAudio')}, 1000);
 
 	// Get the <span> element that closes the modal
 	var span = document.getElementsByClassName("close")[0];
@@ -47,17 +48,16 @@ $(document).ready(function() {
 	});
 
 	socket.on('commandUpdateFrame', function(result) {
-
+    isMotionNotified = false;
 	});	
 
 	socket.on('commandUpdateMotion', function(result) {
-    $('#status-text').text(result);
-
 		// Display modal
-    if (result == "motion") {
+    if (result == "motion" && !isMotionNotified) {
+      isMotionNotified = true;
       const modal = document.getElementById("myModal");
       modal.style.display = "block";
-      $('#modal-content').text(result);
+      $('#modal-content').text("Motion Detected...");
     }
 	});
 
@@ -69,6 +69,14 @@ $(document).ready(function() {
 			preventRecording();
 		}
 	});
+
+  socket.on('commandAudioDetected', (result) => {
+    if (result === "audioDetected") {
+      $('#audio-detection').text("I hear sound...");
+    } else {
+      $('#audio-detection').text("No audio yet...");
+    }
+  })
 });
 
 function sendMonitorCommand(message) {
