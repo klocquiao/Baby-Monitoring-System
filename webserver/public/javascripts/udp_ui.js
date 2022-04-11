@@ -9,12 +9,14 @@ function closeModal() {
   $('#modal-content').text("");
 }
 
+var lastHeard = 0
+
 // Make connection to server when web page is fully loaded.
 var socket = io.connect();
 $(document).ready(function() {
 	window.setInterval(function() {sendMonitorCommand('checkForMotion')}, 1000);
 	window.setInterval(function() {sendMonitorCommand('checkForRecording')}, 3000);
-  window.setInterval(function() {sendMonitorCommand('checkForAudio')}, 1000);
+  	window.setInterval(function() {sendMonitorCommand('checkForAudio')}, 1000);
 
 	// Get the <span> element that closes the modal
 	var span = document.getElementsByClassName("close")[0];
@@ -72,12 +74,27 @@ $(document).ready(function() {
 
   socket.on('commandAudioDetected', (result) => {
     if (result === "audioDetected") {
+		lastHeard = 0;
       $('#audio-detection').text("I hear sound...");
     } else {
-      $('#audio-detection').text("No audio yet...");
+		lastHeard++;
+		let formattedTime = format(lastHeard)
+      $('#audio-detection').text(`Audio last detected ${formattedTime} ago`);
     }
   })
 });
+
+//https://stackoverflow.com/questions/28705009/how-do-i-get-the-server-uptime-in-node-js
+function format(seconds) {
+    function pad(s){
+        return (s < 10 ? '0' : '') + s;
+      }
+      var hours = Math.floor(seconds / (6060));
+      var minutes = Math.floor(seconds % (6060) / 60);
+      var seconds = Math.floor(seconds % 60);
+
+      return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+}
 
 function sendMonitorCommand(message) {
 	socket.emit('monitor', message);
