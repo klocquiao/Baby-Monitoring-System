@@ -42,18 +42,17 @@ function handleCommand(socket) {
 		client.on('message', function (message, remote) {
 			console.log("UDP Client: message Rx" + remote.address + ':' + remote.port +' - ' + message);
 			var reply = message.toString('utf8');
-			if (reply == "recording") {
+			if (reply === "recording") {
 				socket.emit('commandRecord', reply);
-			}
-			else if (reply == "updating") {
+			} else if (reply === "updating") {
 				socket.emit("commandUpdateFrame", reply);
-			}			
-			else if (reply == "motion") {
+			}	else if (reply === "motion") {
 				socket.emit("commandUpdateMotion", reply);
-			}		
-			else if (reply == "record" || reply == "noRecord") {
+			}	else if (reply === "record" || reply === "noRecord") {
 				socket.emit("commandUpdateRecording", reply);
-			}
+			} else if (reply === "audioDetected" || reply === "audioNotDetected") {
+        socket.emit("commandAudioDetected", reply);
+      }
 
 			client.close();
 

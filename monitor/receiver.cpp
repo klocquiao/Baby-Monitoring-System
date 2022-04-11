@@ -10,6 +10,8 @@ https://github.com/derekmolloy/boneCV
 #include "receiver.h"
 #include "camera.h"
 
+using namespace std;
+
 static pthread_t receiverID;
 
 static bool isShuttingDown = false;
@@ -23,10 +25,6 @@ static void *receiverRunner(void *arg);
 
 static void replyHandler(const char *command);
 static void sendReply(const char *reply);
-
-static bool isMotionNotified = false;
-
-using namespace std;
 
 void startReceiver(Audio *p_audio) {
     audio = p_audio;
@@ -86,6 +84,12 @@ static void replyHandler(const char *messageRx) {
             sendReply("record");
         } else {
             sendReply("noRecord");
+        }
+    } else if (strncmp(messageRx, "checkForAudio", MAX_LEN) == 0) {
+        if (audio->isAudioDetected()) {
+            sendReply("audioDetected");
+        } else {
+            sendReply("audioNotDetected");
         }
     }
 }
